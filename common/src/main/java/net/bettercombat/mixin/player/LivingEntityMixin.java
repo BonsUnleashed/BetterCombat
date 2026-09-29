@@ -62,6 +62,10 @@ public class LivingEntityMixin implements ConfigurableKnockback {
 
     @Inject(method = "getItemBySlot", at = @At("HEAD"), cancellable = true)
     public void getEquippedStack_Pre(EquipmentSlot slot, CallbackInfoReturnable<ItemStack> cir) {
+        if (slot != OFFHAND) {
+            return;
+        }
+
         if (((Object)this) instanceof Player player) {
             var mainHandHasTwoHanded = false;
             var mainHandStack = ((PlayerEntityAccessor) this).getInventory().getSelectedItem();
@@ -77,12 +81,9 @@ public class LivingEntityMixin implements ConfigurableKnockback {
                 offHandHasTwoHanded = true;
             }
 
-            if (slot == OFFHAND) {
-                if (mainHandHasTwoHanded || offHandHasTwoHanded) {
-                    cir.setReturnValue(ItemStack.EMPTY);
-                    cir.cancel();
-                    return;
-                }
+            if (mainHandHasTwoHanded || offHandHasTwoHanded) {
+                cir.setReturnValue(ItemStack.EMPTY);
+                cir.cancel();
             }
         }
     }
